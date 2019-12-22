@@ -1,0 +1,21 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rust-version: [stable, beta]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: rustup
+      run: rustup toolchain install ${{ matrix.rust-version }}
+    - name: Build
+      run: cargo +${{ matrix.rust-version }} build --verbose
+    - name: Run tests
+      run: cargo +${{ matrix.rust-version }} test --verbose

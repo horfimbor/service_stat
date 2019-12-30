@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "event_auth"
 version = "0.1.0"
-source = "git+https://github.com/horfimbor/event_auth#604e97360e892e1f9a978efff758f08a98526357"
+source = "git+https://github.com/horfimbor/event_auth#471eef6ac93fc48aa75286ca4f8cb8800f964c54"
 dependencies = [
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.44 (registry+https://github.com/rust-lang/crates.io-index)",

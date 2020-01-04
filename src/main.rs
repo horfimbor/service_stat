@@ -9,6 +9,8 @@ use eventstore::{Connection, ReadStreamStatus, StreamSlice};
 use eventstore::Slice;
 use futures::Future;
 use tiny_http::{Request, Response, Server};
+use mod_event::PublicEvent;
+use event_auth::AuthEventList::Created;
 
 fn main() {
     let connection = Connection::builder()
@@ -17,10 +19,11 @@ fn main() {
     let nb_account = Arc::new(Mutex::new(0));
     let last_account = Arc::new(Mutex::new("".to_string()));
 
-    let (nb, last) = (Arc::clone(&nb_account), Arc::clone(&last_account));
+    let (account_nb, last) = (Arc::clone(&nb_account), Arc::clone(&last_account));
+    let mut nb_iteration  = 0;
     thread::spawn(move || {
         loop {
-            let result = read_stream(&connection, &nb);
+            let result = read_stream(&connection, &account_nb);
 
             match result {
                 eventstore::ReadStreamStatus::Success(slice) => match slice.events() {
@@ -31,17 +34,31 @@ fn main() {
                     eventstore::LocatedEvents::Events { mut events, next } => {
                         let event = events.pop().unwrap();
                         let event = event.get_original_event().unwrap();
-                        let obj: event_auth::AccountCreated = event.as_json().unwrap();
 
+                        let obj = event_auth::GlobalAuthEvent::from_json(event.event_type.as_str(), std::str::from_utf8(&event.data[..]).unwrap() );
+
+
+                        match obj.events {
+                            Created(account_created) => {
+                                {
+                                    let mut nb = account_nb.lock().unwrap();
+                                    *nb += 1;
+                                }
+                                {
+                                    let mut last = last.lock().unwrap();
+                                    *last = account_created.name;
+                                }
+                            }
+                            _ => {
+                                // dont care
+                            }
+                        }
 
                         match next {
                             Some(n) => {
-                                let mut nb = nb.lock().unwrap();
-                                *nb = n;
+                                nb_iteration = n
                             }
                             None => {
-                                let mut last = last.lock().unwrap();
-                                *last = obj.name;
                                 thread::sleep(Duration::from_secs(1))
                             }
                         }
@@ -93,8 +110,13 @@ fn main() {
 
 fn read_stream(connection: &Connection, nb: &Arc<Mutex<i64>>) -> ReadStreamStatus<StreamSlice> {
     let st = nb.lock().unwrap();
+
+    let events = event_auth::GlobalAuthEvent{
+        events : event_auth::AuthEventList::Empty
+    };
+
     let result =
-        connection.read_stream("account")
+        connection.read_stream(events.stream_name())
             .start_from(*st)
             .max_count(1)
             .execute()

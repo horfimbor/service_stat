@@ -230,7 +230,7 @@ dependencies = [
 [[package]]
 name = "event_auth"
 version = "0.1.0"
-source = "git+https://github.com/horfimbor/event_auth#d111e8a52deec3a25284f3802140f1032b220677"
+source = "git+https://github.com/horfimbor/event_auth#f6c32f1a91694e4c713b1710e49a4b573aa1464c"
 dependencies = [
  "mod_event 0.1.0 (git+https://github.com/horfimbor/mod_event)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1102,6 +1102,7 @@ dependencies = [
  "event_auth 0.1.0 (git+https://github.com/horfimbor/event_auth)",
  "eventstore 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mod_event 0.1.0 (git+https://github.com/horfimbor/mod_event)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.44 (registry+https://github.com/rust-lang/crates.io-index)",

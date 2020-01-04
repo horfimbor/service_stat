@@ -21,9 +21,11 @@ fn main() {
 
     let (account_nb, last) = (Arc::clone(&nb_account), Arc::clone(&last_account));
     let mut nb_iteration  = 0;
+    let mut last_processed_id = -1;
     thread::spawn(move || {
         loop {
-            let result = read_stream(&connection, &account_nb);
+
+            let result = read_stream(&connection, nb_iteration);
 
             match result {
                 eventstore::ReadStreamStatus::Success(slice) => match slice.events() {
@@ -37,20 +39,23 @@ fn main() {
 
                         let obj = event_auth::GlobalAuthEvent::from_json(event.event_type.as_str(), std::str::from_utf8(&event.data[..]).unwrap() );
 
+                        if last_processed_id != event.event_number {
+                            last_processed_id = event.event_number;
 
-                        match obj.events {
-                            Created(account_created) => {
-                                {
-                                    let mut nb = account_nb.lock().unwrap();
-                                    *nb += 1;
+                            match obj.events {
+                                Created(account_created) => {
+                                    {
+                                        let mut nb = account_nb.lock().unwrap();
+                                        *nb += 1;
+                                    }
+                                    {
+                                        let mut last = last.lock().unwrap();
+                                        *last = account_created.name;
+                                    }
                                 }
-                                {
-                                    let mut last = last.lock().unwrap();
-                                    *last = account_created.name;
+                                _ => {
+                                    // dont care
                                 }
-                            }
-                            _ => {
-                                // dont care
                             }
                         }
 
@@ -108,8 +113,7 @@ fn main() {
     }
 }
 
-fn read_stream(connection: &Connection, nb: &Arc<Mutex<i64>>) -> ReadStreamStatus<StreamSlice> {
-    let st = nb.lock().unwrap();
+fn read_stream(connection: &Connection, nb: i64) -> ReadStreamStatus<StreamSlice> {
 
     let events = event_auth::GlobalAuthEvent{
         events : event_auth::AuthEventList::Empty
@@ -117,7 +121,7 @@ fn read_stream(connection: &Connection, nb: &Arc<Mutex<i64>>) -> ReadStreamStatu
 
     let result =
         connection.read_stream(events.stream_name())
-            .start_from(*st)
+            .start_from(nb)
             .max_count(1)
             .execute()
             .wait()

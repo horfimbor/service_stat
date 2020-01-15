@@ -78,9 +78,9 @@ fn main() {
     });
 
 
-    let server = Server::http("0.0.0.0:8001").unwrap();
+    let server = Server::http("0.0.0.0:8000").unwrap();
 
-    println!("listening on 8001");
+    println!("listening on 8000");
 
     for request in server.incoming_requests() {
         println!("received request!\n, method: {:?}\n, url: {:?}\n, headers: {:?}\n",

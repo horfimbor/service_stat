@@ -13,6 +13,6 @@ mod_event = { git = "https://github.com/horfimbor/mod_event" }
 futures = "0.1"
 eventstore = "0.5.1"
 serde = "1.0.104"
-serde_json = "1.0.45"
+serde_json = "1.0.53"
 serde_derive = "1.0"
 tiny_http="0.6.2"

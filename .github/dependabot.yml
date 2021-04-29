@@ -1,0 +1,32 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "18:00"
+    timezone: Europe/Belfast
+  open-pull-requests-limit: 10
+  target-branch: master
+  reviewers:
+  - Aedius
+  ignore:
+  - dependency-name: regex
+    versions:
+    - 1.4.3
+    - 1.4.5
+  - dependency-name: serde_json
+    versions:
+    - 1.0.61
+    - 1.0.62
+    - 1.0.63
+  - dependency-name: futures
+    versions:
+    - 0.3.12
+    - 0.3.13
+  - dependency-name: indexmap
+    versions:
+    - 1.6.1
+  - dependency-name: eventstore
+    versions:
+    - 0.9.9
